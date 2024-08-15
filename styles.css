@@ -1,0 +1,24 @@
+button {
+    --button-background: #ee00d6;
+    --button-background-hover: black;
+
+    width: 98px;
+    height: 75px;
+    border-radius: 5px;
+    border-width: 1px;
+    stroke-width: 0px;
+    background-color: var(--button-background);
+    padding: 0px;
+    border: 0px solid;
+}
+
+button:hover {
+    background-color: var(--button-background-hover);
+}
+
+.svg-triangle path {
+    stroke-width: 16px;
+    stroke: white;
+    stroke-linejoin: round;
+    fill: white;
+}
