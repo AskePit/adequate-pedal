@@ -141,20 +141,112 @@ function createGuitarSource(noteToPlay) {
 
 const randomFloat = (min, max) => Math.random() * (max - min) + min;
 
+const LFO_SINE = 0
+const LFO_TRIANGLE = 1
+const LFO_SQUARE = 2
+const LFO_RAMP = 3
+
+function lfo(sampleNumber, sampleRate, lfoType, frequency, depth) {
+    const time = sampleNumber / sampleRate
+
+    const x = 2 * Math.PI * frequency * time
+
+    if (lfoType == LFO_SINE) {
+	    return depth * Math.sin(x)
+
+    } else if (lfoType == LFO_TRIANGLE) {
+        const magic = x/(2*Math.PI)
+        const triangle = 2 * Math.abs( 2*(magic - Math.floor(0.5 + magic)) ) - 1
+        return depth * triangle
+
+    } else if (lfoType == LFO_SQUARE) {
+        return depth * Math.sign( depth * Math.sin(x) )
+
+    } else if (lfoType == LFO_RAMP) {
+        const magic = x/(2*Math.PI)
+        const ramp = 2*(magic - Math.floor(0.5 + magic))
+        return depth * ramp
+    }
+}
+
+/**
+ * Create a function that maps a value to a range
+ * @param  {Number}   inMin    Input range minimun value
+ * @param  {Number}   inMax    Input range maximun value
+ * @param  {Number}   outMin   Output range minimun value
+ * @param  {Number}   outMax   Output range maximun value
+ * @return {function}          A function that converts a value
+ * 
+ * @author github.com/victornpb
+ * @see https://stackoverflow.com/a/41350248/938822
+ */
+function remap(x, inMin, inMax, outMin, outMax) {
+    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+}
+
+/**
+ * Returns a number whose value is limited to the given range.
+ *
+ * Example: limit the output of this computation to between 0 and 255
+ * (x * 255).clamp(0, 255)
+ *
+ * @param {Number} min The lower boundary of the output range
+ * @param {Number} max The upper boundary of the output range
+ * @returns A number in the range [min, max]
+ * @type Number
+ */
+function clamp(val, min, max) {
+    return Math.min(Math.max(val, min), max);
+};
+
 function playGuitarSound(notes, duration) {
     const seconds = duration / (BPM / 60)
     const startTime = context.currentTime + guitarTimeline
     const endTime = startTime + seconds
 
+    const lfoSampleRate = 256
+    const lfoTime = lfoSampleRate * seconds
+
+    const lfoType = LFO_TRIANGLE
+    const lfoRate = 2
+    const lfoDepth = 20
+    //const lfoDepth = 0.25
+
     for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
         const sample = createGuitarSource(notes[noteIndex])
 
         sample.connect(guitarEffectsChain[0])
+
+        for (var sampleNumber = 0; sampleNumber < lfoTime; sampleNumber++) {
+            const value = lfo(sampleNumber, lfoSampleRate, lfoType, lfoRate, lfoDepth)
+            const time = startTime + sampleNumber/lfoSampleRate
+
+            //console.log(value, time)
+
+            // Vibrato
+            sample.detune.setValueAtTime(value, time)
+            
+            // Tremolo
+            //guitarEffectsChain[0].gain.setValueAtTime(value, time)
+        }
+        
         sample.start(startTime + randomFloat(0, GUITAR_PLAYING_ERRORS))
         sample.stop(endTime + DAMPING_DURATION + randomFloat(0, GUITAR_PLAYING_ERRORS))
 
         soundNodes.push(sample)
     }
+
+    // Chorus
+    // for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
+    //     const sample = createGuitarSource(notes[noteIndex])
+
+    //     sample.connect(guitarEffectsChain[0])
+
+    //     sample.start(startTime + randomFloat(0, GUITAR_PLAYING_ERRORS))
+    //     sample.stop(endTime + DAMPING_DURATION + randomFloat(0, GUITAR_PLAYING_ERRORS))
+
+    //     soundNodes.push(sample)
+    // }
 
     guitarTimeline += seconds
 }
@@ -193,7 +285,7 @@ button.onclick = async () => {
     }
     soundNodes = []
 
-    playGuitarSound([D3], WHOLE*3)
+    playGuitarSound([D3], WHOLE*10)
 
     guitarTimeline = 0
 };
