@@ -90,7 +90,7 @@ const HALF_DOT_PAUSE = -HALF_DOT
 
 // Settings
 const BPM = 120
-const GUITAR_VOLUME = 0.5
+const GUITAR_VOLUME = 1.0
 const GUITAR_GAIN = 400
 const DAMPING_START = 0
 const DAMPING_DURATION = 0.03
@@ -129,7 +129,7 @@ async function loadSample(path) {
 
 async function loadGuitarSample() {
     SAMPLE_NOTE = D3;
-    return await loadSample("./sound/guitar_d_string.wav")
+    return await loadSample("./sound/sample03.mp3")
 }
 
 function createGuitarSource(noteToPlay) {
@@ -208,8 +208,8 @@ function playGuitarSound(notes, duration) {
     const lfoTime = lfoSampleRate * seconds
 
     const lfoType = LFO_TRIANGLE
-    const lfoRate = 2
-    const lfoDepth = 20
+    const lfoRate = 3.5
+    const lfoDepth = 28
     //const lfoDepth = 0.25
 
     for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
@@ -285,7 +285,7 @@ button.onclick = async () => {
     }
     soundNodes = []
 
-    playGuitarSound([D3], WHOLE*10)
+    playGuitarSound([D3], WHOLE*100)
 
     guitarTimeline = 0
 };
