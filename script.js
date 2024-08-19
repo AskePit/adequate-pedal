@@ -1,4 +1,9 @@
 const button = document.querySelector("button");
+const pedalTypeCombo = document.getElementById('pedalType');
+const sampleCombo = document.getElementById('sampleChoice');
+const lfoTypeKnob = document.getElementById('lfoType');
+const rateKnob = document.getElementById('rateValue');
+const depthKnob = document.getElementById('depthValue');
 
 const C2   = 0
 const Csh2 = 1
@@ -129,7 +134,7 @@ async function loadSample(path) {
 
 async function loadGuitarSample() {
     SAMPLE_NOTE = D3;
-    return await loadSample("./sound/sample03.mp3")
+    return await loadSample('./sound/sample0' + sampleCombo.value + '.mp3')
 }
 
 function createGuitarSource(noteToPlay) {
@@ -145,6 +150,10 @@ const LFO_SINE = 0
 const LFO_TRIANGLE = 1
 const LFO_SQUARE = 2
 const LFO_RAMP = 3
+
+const VIBRATO = 0
+const CHORUS = 1
+const TREMOLO = 2
 
 function lfo(sampleNumber, sampleRate, lfoType, frequency, depth) {
     const time = sampleNumber / sampleRate
@@ -169,32 +178,10 @@ function lfo(sampleNumber, sampleRate, lfoType, frequency, depth) {
     }
 }
 
-/**
- * Create a function that maps a value to a range
- * @param  {Number}   inMin    Input range minimun value
- * @param  {Number}   inMax    Input range maximun value
- * @param  {Number}   outMin   Output range minimun value
- * @param  {Number}   outMax   Output range maximun value
- * @return {function}          A function that converts a value
- * 
- * @author github.com/victornpb
- * @see https://stackoverflow.com/a/41350248/938822
- */
 function remap(x, inMin, inMax, outMin, outMax) {
     return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }
 
-/**
- * Returns a number whose value is limited to the given range.
- *
- * Example: limit the output of this computation to between 0 and 255
- * (x * 255).clamp(0, 255)
- *
- * @param {Number} min The lower boundary of the output range
- * @param {Number} max The upper boundary of the output range
- * @returns A number in the range [min, max]
- * @type Number
- */
 function clamp(val, min, max) {
     return Math.min(Math.max(val, min), max);
 };
@@ -207,10 +194,11 @@ function playGuitarSound(notes, duration) {
     const lfoSampleRate = 256
     const lfoTime = lfoSampleRate * seconds
 
-    const lfoType = LFO_TRIANGLE
-    const lfoRate = 3.5
-    const lfoDepth = 28
-    //const lfoDepth = 0.25
+    const lfoType = lfoTypeKnob.value
+    const lfoRate = remap(rateKnob.value, 0, 100, 0, 10)
+    const lfoDepth = pedalTypeCombo.value == TREMOLO
+        ? remap(depthKnob.value, 0, 100, 0, 1)
+        : remap(depthKnob.value, 0, 100, 0, 60)
 
     for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
         const sample = createGuitarSource(notes[noteIndex])
@@ -223,11 +211,11 @@ function playGuitarSound(notes, duration) {
 
             //console.log(value, time)
 
-            // Vibrato
-            sample.detune.setValueAtTime(value, time)
-            
-            // Tremolo
-            //guitarEffectsChain[0].gain.setValueAtTime(value, time)
+            if (pedalTypeCombo.value == VIBRATO || pedalTypeCombo.value == CHORUS) {
+                sample.detune.setValueAtTime(value, time)
+            } else if (pedalTypeCombo.value == TREMOLO) {
+                guitarEffectsChain[0].gain.setValueAtTime(value + lfoDepth/2, time)
+            }
         }
         
         sample.start(startTime + randomFloat(0, GUITAR_PLAYING_ERRORS))
@@ -236,17 +224,18 @@ function playGuitarSound(notes, duration) {
         soundNodes.push(sample)
     }
 
-    // Chorus
-    // for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
-    //     const sample = createGuitarSource(notes[noteIndex])
+    if (pedalTypeCombo.value == CHORUS) {
+        for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
+            const sample = createGuitarSource(notes[noteIndex])
 
-    //     sample.connect(guitarEffectsChain[0])
+            sample.connect(guitarEffectsChain[0])
 
-    //     sample.start(startTime + randomFloat(0, GUITAR_PLAYING_ERRORS))
-    //     sample.stop(endTime + DAMPING_DURATION + randomFloat(0, GUITAR_PLAYING_ERRORS))
+            sample.start(startTime + randomFloat(0, GUITAR_PLAYING_ERRORS))
+            sample.stop(endTime + DAMPING_DURATION + randomFloat(0, GUITAR_PLAYING_ERRORS))
 
-    //     soundNodes.push(sample)
-    // }
+            soundNodes.push(sample)
+        }
+    }
 
     guitarTimeline += seconds
 }
