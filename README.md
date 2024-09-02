@@ -1,4 +1,4 @@
-# adequate-pedal
+# String Walker
 
 Digital guitar effect pedal emulator
 
