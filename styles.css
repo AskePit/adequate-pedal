@@ -1,9 +1,63 @@
+body {
+    overflow: hidden;
+    --debug: 0;
+}
+
+#pedal-body {
+    position: relative;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.knob-min-max, .knob-positioned {
+    position: absolute;
+    width: 75px;
+    height: 75px;
+    border: calc(var(--debug)*5px) solid black;
+}
+
+.tree-way-switch {
+    position: absolute;
+    width: 75px;
+    height: 75px;
+    border: calc(var(--debug)*5px) solid black;
+}
+
+#rate-knob {
+    top: 112px;
+    left: 75px;
+}
+
+#depth-knob {
+    top: 112px;
+    left: 325px;
+}
+
+#mode-knob {
+    top: 552px;
+    left: 325px;
+}
+
+#pedal-type-switch {
+    top: 426px;
+    left: 338px;
+}
+
 button {
     --button-background: #ee00d6;
     --button-background-hover: black;
 
-    width: 98px;
+    position: absolute;
+    width: 90px;
     height: 75px;
+    top: 657px;
+    left: 80px;
     border-radius: 5px;
     border-width: 1px;
     stroke-width: 0px;
@@ -26,3 +80,4 @@ button:hover {
 td {
     padding: 10px;
 }
+

@@ -1,62 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-        <link rel="stylesheet" href="styles.css">
-		<title>Adequate pedal</title>
-	</head>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<link rel="stylesheet" href="styles.css">
+	<title>Adequate pedal</title>
+</head>
 
-	<body>
-		<table>
-			<tr>
-				<td>
-					<label for="pedalType">Pedal:</label>
-					<select name="pedalType" id="pedalType">
-						<option value="0">Vibrato</option>
-						<option value="1">Chorus</option>
-						<option value="2">Tremolo</option>
-					</select>
-				</td>
-				<td>
-					<label for="sampleChoice">Sample:</label>
-					<select name="sampleChoice" id="sampleChoice">
-						<option value="1">sample 1</option>
-						<option value="2">sample 2</option>
-						<option value="3">sample 3</option>
-						<option value="4">sample 4</option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label for="lfoType">Shape:</label>
-					<select name="lfoType" id="lfoType">
-						<option value="0">Sine</option>
-						<option value="1">Triangle</option>
-						<option value="2">Square</option>
-						<option value="3">Ramp</option>
-					</select>
-				</td>
-				<td>
-					<label for="rateValue">Rate:</label>
-					<input type="range" name="rateValue" id="rateValue" min="0" max="100" value="30">
-				</td>
-				<td>
-					<label for="rateValue">Depth:</label>
-					<input type="range" name="depthValue" id="depthValue" min="0" max="100" value="70">
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<button>
-						<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-triangle" width='40' height='40' viewBox="0 0 110 100">
-							<path d="M 95,50 28,90 28,10 z"/>
-						</svg>
-					</button>
-				</td>
-			</tr>
-		</table>
-	</body>
-	<script src="script.js"></script>
+<body>
+	<div class="centered">
+		<div id="pedal-body">
+			<img id="pedal-cover" src="img/string_walker.jpg">
+			<div class="knob-min-max" id="rate-knob"></div>
+			<div class="knob-min-max" id="depth-knob"></div>
+			<div class="knob-positioned" id="mode-knob"></div>
+			<div class="tree-way-switch" id="pedal-type-switch"></div>
+			<button>
+				<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-triangle" width='40' height='40' viewBox="0 0 110 100">
+					<path d="M 95,50 28,90 28,10 z"/>
+				</svg>
+			</button>
+		</div>
+	</div>
+</body>
+<script src="script.js"></script>
 </html>
