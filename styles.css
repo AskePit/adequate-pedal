@@ -20,6 +20,8 @@ body {
     position: absolute;
     width: 69px;
     height: 69px;
+    margin: 0;
+    padding: 0;
 }
 
 .tree-way-switch {
@@ -31,7 +33,6 @@ body {
 #rate-knob {
     top: 113px;
     left: 80px;
-    /* transform: rotate(-90deg); */
 }
 
 #depth-knob {

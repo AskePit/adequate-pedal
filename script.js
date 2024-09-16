@@ -1,8 +1,12 @@
 const button = document.querySelector("button");
-const pedalTypeSwitch = document.getElementById('pedal-type-switch');
-const modeKnob = document.getElementById('mode-knob');
-const rateKnob = document.getElementById('rate-knob');
-const depthKnob = document.getElementById('depth-knob');
+const pedalTypeSwitchDiv = document.getElementById('pedal-type-switch');
+const modeKnobDiv = document.getElementById('mode-knob');
+const rateKnobDiv = document.getElementById('rate-knob');
+const depthKnobDiv = document.getElementById('depth-knob');
+
+let rateKnob = new ContinuousDial(rateKnobDiv, 0, 100, -120, 120, 50)
+let depthKnob = new ContinuousDial(depthKnobDiv, 0, 100, -120, 120, 50)
+let modeKnob = new FixedDial(modeKnobDiv, [-78, -106, -137, -167, 164, 134, 103], 3)
 
 const C2   = 0
 const Csh2 = 1
@@ -133,7 +137,7 @@ async function loadSample(path) {
 
 async function loadGuitarSample() {
     SAMPLE_NOTE = D3;
-    return await loadSample('./sound/sample01.mp3')
+    return await loadSample('./sound/sample02.mp3')
 }
 
 function createGuitarSource(noteToPlay) {
@@ -145,61 +149,21 @@ function createGuitarSource(noteToPlay) {
 
 const randomFloat = (min, max) => Math.random() * (max - min) + min;
 
-const LFO_SINE = 0
-const LFO_TRIANGLE = 1
-const LFO_SQUARE = 2
+const LFO_RANDOM = 0
+const LFO_SQUARE = 1
+const LFO_TRIANGLE = 2
+const LFO_SINE = 3
+const LFO_ENV_D = 4
+const LFO_ENV_P = 5
+const LFO_ENV_R = 6
 
 const VIBRATO = 0
 const CHORUS = 1
 const TREMOLO = 2
 
-const VAL0 = 0;
-const VAL10 = 10;
-const VAL25 = 25;
-const VAL50 = 50;
-const VAL75 = 75;
-const VAL100 = 100;
-
 let pedalType = VIBRATO;
-let mode = LFO_SINE;
-let rate = VAL50;
-let depth = VAL50;
 
-rateKnob.onclick = () => {
-    if (rate == VAL0) {
-        rate = VAL10
-    } else if (rate == VAL10) {
-        rate = VAL25
-    } else if (rate == VAL25) {
-        rate = VAL50
-    } else if (rate == VAL50) {
-        rate = VAL75
-    } else if (rate == VAL75) {
-        rate = VAL100
-    } else if (rate == VAL100) {
-        rate = VAL0
-    }
-    rateKnob.innerHTML = rate
-}
-
-depthKnob.onclick = () => {
-    if (depth == VAL0) {
-        depth = VAL10
-    } else if (depth == VAL10) {
-        depth = VAL25
-    } else if (depth == VAL25) {
-        depth = VAL50
-    } else if (depth == VAL50) {
-        depth = VAL75
-    } else if (depth == VAL75) {
-        depth = VAL100
-    } else if (depth == VAL100) {
-        depth = VAL0
-    }
-    depthKnob.innerHTML = depth
-}
-
-pedalTypeSwitch.onclick = () => {
+pedalTypeSwitchDiv.onclick = () => {
     if (pedalType == VIBRATO) {
         pedalType = CHORUS
     } else if (pedalType == CHORUS) {
@@ -207,18 +171,7 @@ pedalTypeSwitch.onclick = () => {
     } else if (pedalType == TREMOLO) {
         pedalType = VIBRATO
     }
-    pedalTypeSwitch.innerHTML = pedalType
-}
-
-modeKnob.onclick = () => {
-    if (mode == LFO_SINE) {
-        mode = LFO_TRIANGLE
-    } else if (mode == LFO_TRIANGLE) {
-        mode = LFO_SQUARE
-    } else if (mode == LFO_SQUARE) {
-        mode = LFO_SINE
-    }
-    modeKnob.innerHTML = mode
+    pedalTypeSwitchDiv.innerHTML = pedalType
 }
 
 function lfo(sampleNumber, sampleRate, lfoType, frequency, depth) {
@@ -237,20 +190,18 @@ function lfo(sampleNumber, sampleRate, lfoType, frequency, depth) {
     } else if (lfoType == LFO_SQUARE) {
         return depth * Math.sign( depth * Math.sin(x) )
 
-    } else if (lfoType == LFO_RAMP) {
-        const magic = x/(2*Math.PI)
-        const ramp = 2*(magic - Math.floor(0.5 + magic))
-        return depth * ramp
+    } else {
+        return depth * Math.sin(x)
     }
 }
 
 function remap(x, inMin, inMax, outMin, outMax) {
-    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
 }
 
 function clamp(val, min, max) {
-    return Math.min(Math.max(val, min), max);
-};
+    return Math.min(Math.max(val, min), max)
+}
 
 function playGuitarSound(notes, duration) {
     const seconds = duration / (BPM / 60)
@@ -260,11 +211,11 @@ function playGuitarSound(notes, duration) {
     const lfoSampleRate = 256
     const lfoTime = lfoSampleRate * seconds
 
-    const lfoType = mode
-    const lfoRate = remap(rate, 0, 100, 0, 10)
+    const lfoType = modeKnob.mode
+    const lfoRate = remap(rateKnob.value, 0, 100, 0, 10)
     const lfoDepth = pedalType == TREMOLO
-        ? remap(depth, 0, 100, 0, 1)
-        : remap(depth, 0, 100, 0, 60)
+        ? remap(depthKnob.value, 0, 100, 0, 1)
+        : remap(depthKnob.value, 0, 100, 0, 60)
 
     for (let noteIndex = 0; noteIndex < notes.length; noteIndex++) {
         const sample = createGuitarSource(notes[noteIndex])
