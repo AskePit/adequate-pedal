@@ -7,12 +7,13 @@ function clamp(val, min, max) {
 }
 
 class ContinuousDial {
-    constructor(obj, minValue, maxValue, minDegree, maxDegree, startValue) {
+    constructor(obj, minValue, maxValue, minDegree, maxDegree, startValue, cb) {
         this.#obj = obj
         this.#minValue = minValue;
         this.#maxValue = maxValue;
         this.#minDegree = minDegree;
         this.#maxDegree = maxDegree;
+        this.#cb = cb
 
         this.#getImage().ondragstart = function() { return false; };
 
@@ -32,6 +33,9 @@ class ContinuousDial {
 
     set value(x) {
         this.#value = clamp(x, this.#minValue, this.#maxValue)
+        if (this.#cb) {
+            this.#cb()
+        }
         this.#rotateObj()
     }
 
@@ -77,13 +81,16 @@ class ContinuousDial {
 
     #isDragging = false
     #lastMouseY = 0
+
+    #cb = null
 }
 
 class FixedDial {
-    constructor(obj, modeDegrees, startMode) {
+    constructor(obj, modeDegrees, startMode, cb) {
         this.#obj = obj
         this.#degrees = modeDegrees;
         this.mode = startMode;
+        this.#cb = cb
 
         this.#getImage().ondragstart = function() { return false; };
 
@@ -103,6 +110,9 @@ class FixedDial {
 
     set mode(x) {
         this.#mode = clamp(x, 0, this.#degrees.length)
+        if (this.#cb) {
+            this.#cb()
+        }
         this.#rotateObj()
     }
 
@@ -160,4 +170,6 @@ class FixedDial {
     #isDragging = false
     #lastMouseY = 0
     #yAccum = 0
+
+    #cb = null
 }
