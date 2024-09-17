@@ -14,7 +14,7 @@ class ContinuousDial {
         this.#minDegree = minDegree;
         this.#maxDegree = maxDegree;
 
-        this.#obj.getElementsByTagName('img')[0].ondragstart = function() { return false; };
+        this.#getImage().ondragstart = function() { return false; };
 
         this.#obj.addEventListener('mousedown', (e) => {
             this.#isDragging = true;
@@ -43,8 +43,12 @@ class ContinuousDial {
         this.value = remap(x, this.#minDegree, this.#maxDegree, this.#minValue, this.#maxValue)
     }
 
+    #getImage() {
+        return this.#obj.getElementsByTagName('img')[0]
+    }
+
     #rotateObj() {
-        this.#obj.style.transform = 'rotate(' + this.degree + 'deg)'
+        this.#getImage().style.transform = 'rotate(' + this.degree + 'deg)'
     }
 
     #onMouseMove(e) {
@@ -81,7 +85,7 @@ class FixedDial {
         this.#degrees = modeDegrees;
         this.mode = startMode;
 
-        this.#obj.getElementsByTagName('img')[0].ondragstart = function() { return false; };
+        this.#getImage().ondragstart = function() { return false; };
 
         this.#obj.addEventListener('mousedown', (e) => {
             this.#isDragging = true;
@@ -114,8 +118,12 @@ class FixedDial {
         return this.#degrees[this.#mode]
     }
 
+    #getImage() {
+        return this.#obj.getElementsByTagName('img')[0]
+    }
+
     #rotateObj() {
-        this.#obj.style.transform = 'rotate(' + this.degree + 'deg)'
+        this.#getImage().style.transform = 'rotate(' + this.degree + 'deg)'
     }
 
     #onMouseMove(e) {
